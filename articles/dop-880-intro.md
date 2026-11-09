@@ -3,7 +3,7 @@ title: "DOP-C02に880点で合格したので、AWSをRPG化した勉強法を�
 emoji: "🎮"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops"]
-published: false
+published: true
 ---
 
 ## はじめに：880点でした
