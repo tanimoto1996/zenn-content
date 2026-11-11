@@ -214,6 +214,10 @@ Lambdaの段階デプロイは、pre／postフック＋アラームで自動ロ�
 | Lambdaの段階デプロイ | SAM＋CodeDeployのトラフィックシフト |
 | SAMのカナリア | `Canary10Percent15Minutes` ＋ CodeDeploy ＋ アラームで自動ロールバック |
 
+※新旧混在はそのまま残りません。
+
+既定では直後に追従デプロイが走ります。
+
 ---
 
 ## おわりに：次は②IaC・設定管理区へ

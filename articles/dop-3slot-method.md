@@ -3,7 +3,7 @@ title: "DOPは「正解を探すな」― 3スロット法の完全版：30秒�
 emoji: "🎯"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
-published: false
+published: true
 ---
 
 ## はじめに：解き方を先に固める
