@@ -295,9 +295,9 @@ OpenSearchやRedshiftはプロビジョニングが必要になります。
 
 3スロット法は、解き方の土台やと思ってます。
 
-次回からは、この解き方を使って①SDLC自動化区のボスを深掘りしていきます。
+次回は①SDLC自動化区です。
 
-相手は、Code系3サービスの切り分け、AllowTrafficの無言死、ECSデプロイの2方式です。
+[DOP ①SDLC自動化区 ― CodePipeline／CodeDeployの切り分けと、無言で死ぬデプロイの見抜き方](https://zenn.dev/kokosu/articles/dop-sdlc-region)
 
 なお、反射ドリルとボス図鑑の完全版は、Zenn Booksで準備中です。
 
