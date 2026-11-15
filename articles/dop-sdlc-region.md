@@ -230,6 +230,8 @@ Lambdaの段階デプロイは、pre／postフック＋アラームで自動ロ�
 
 次回は②IaC・設定管理区に進みます。
 
+https://zenn.dev/kokosu/articles/dop-iac-region
+
 相手はCloudFormationとCDKまわりのボスです。
 
 なお、反射ドリルとボス図鑑の完全版は、Zenn Booksで準備中です。
