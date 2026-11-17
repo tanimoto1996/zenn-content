@@ -3,7 +3,7 @@ title: "DOP ③セキュリティ・統制区 ― SCP総集編と、監査コン
 emoji: "🛡️"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
-published: false
+published: true
 ---
 
 ## はじめに：管理アカウントでは動いたのに、メンバーでは動かない
