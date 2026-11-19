@@ -3,7 +3,7 @@ title: "DOP 特集：横断パターン7選 ― 検出から自動修復まで�
 emoji: "🧭"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
-published: false
+published: true
 ---
 
 ## はじめに：サービス名は覚えたのに、組み合わせで手が止まる
