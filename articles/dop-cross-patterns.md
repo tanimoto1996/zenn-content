@@ -339,7 +339,7 @@ DNSで十分なら、Route 53のレイテンシールーティングです。
 
 この視点があれば、組み合わせ問題はもう怖くありません。
 
-次回は④回復力・自己治癒区へ進みます。
+次回は[④回復力・自己治癒区 ― ローリングとBlue/Green、SQSの罠で見抜く回復力](https://zenn.dev/kokosu/articles/dop-resilience-region)に進みます。
 
 ローリングとBlue/Green、SQSの可視性タイムアウトです。
 

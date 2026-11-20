@@ -3,7 +3,7 @@ title: "DOP ④回復力・自己治癒区 ― ローリングとBlue/Green、SQ
 emoji: "🔄"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
-published: false
+published: true
 ---
 
 ## はじめに：成功したはずなのに、古い画面が出る
