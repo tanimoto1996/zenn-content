@@ -76,8 +76,11 @@ CloudWatch Logsには、2つの出口があります。
 <path d="M0 0 L7 3 L0 6 Z" class="ahp"/>
 </marker>
 </defs>
-<path class="beam" marker-end="url(#ah)" d="M112 166 L148 166 L148 70 L176 70"/>
-<path class="beam g" marker-end="url(#ah)" d="M112 166 L148 166 L148 250 L164 250"/>
+<line class="beam" x1="112" y1="166" x2="148" y2="166"/>
+<line class="beam" x1="148" y1="166" x2="148" y2="70"/>
+<line class="beam" marker-end="url(#ah)" x1="148" y1="70" x2="176" y2="70"/>
+<line class="beam g" x1="148" y1="166" x2="148" y2="250"/>
+<line class="beam g" marker-end="url(#ah)" x1="148" y1="250" x2="164" y2="250"/>
 <line class="beam" marker-end="url(#ah)" x1="320" y1="70" x2="376" y2="70"/>
 <line class="beam" marker-end="url(#ah)" x1="470" y1="70" x2="516" y2="70"/>
 <line class="beam" marker-end="url(#ah)" x1="600" y1="70" x2="628" y2="70"/>
