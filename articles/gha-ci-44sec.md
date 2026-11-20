@@ -21,14 +21,26 @@ PRを出すたびに、CIの完了を待つ時間があります。1回で約3�
 
 定番のキャッシュは、使いませんでした。その理由も含めて書きます。
 
-:::message
-この記事で分かること
-- CIのボトルネックをステップ単位で特定する方法
-- composer install を排除し、pharを直接実行する構成
-- pharのバージョン整合性を composer.lock で保つ方法
-- Experimentalな並列化オプションを採用するときのリスクの見分け方
-- キャッシュや差分チェックを、あえて採用しなかった理由
-:::
+```html-embed
+<div class="learnc">
+<div class="ttl">この記事で分かること</div>
+<div class="item" style="animation-delay:0s"><span class="chk">✓</span><span class="txt">CIのボトルネックをステップ単位で特定する方法</span></div>
+<div class="item" style="animation-delay:.15s"><span class="chk">✓</span><span class="txt">composer install を排除し、pharを直接実行する構成</span></div>
+<div class="item" style="animation-delay:.3s"><span class="chk">✓</span><span class="txt">pharのバージョン整合性を composer.lock で保つ方法</span></div>
+<div class="item" style="animation-delay:.45s"><span class="chk">✓</span><span class="txt">Experimentalな並列化オプションを採用するときのリスクの見分け方</span></div>
+<div class="item" style="animation-delay:.6s"><span class="chk">✓</span><span class="txt">キャッシュや差分チェックを、あえて採用しなかった理由</span></div>
+</div>
+<style>
+.learnc { --acc:#3ea8ff; --bg:#eef6ff; --tx:#1a2733; --bd:#bcd9f5; border:1px solid var(--bd); border-left:4px solid var(--acc); border-radius:8px; padding:12px 16px; margin:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; background:var(--bg); }
+[data-theme="dark"] .learnc { --bg:#16324a; --tx:#e8f2fa; --bd:#33506b; }
+.learnc .ttl { color:var(--tx); font-weight:700; font-size:14px; margin-bottom:6px; }
+.learnc .item { display:flex; align-items:flex-start; gap:8px; padding:2px 0; animation:learnfade .7s ease both; }
+@keyframes learnfade { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+.learnc .chk { flex:none; color:var(--acc); font-weight:700; font-size:13px; line-height:1.55; }
+.learnc .txt { color:var(--tx); font-size:13.5px; line-height:1.55; }
+@media (prefers-reduced-motion: reduce) { .learnc * { animation:none !important; } }
+</style>
+```
 
 ---
 
@@ -44,6 +56,26 @@ PRを出すたびに、CIの完了を待つ時間があります。1回で約3�
 | composer install | 1分40秒 |
 | Pint 実行 | 2分17秒 |
 | 合計 | 約3分（実行により2〜3分） |
+
+```html-embed
+<div class="timeb">
+<div class="row"><span class="lab">Setup PHP</span><div class="track"><div class="bar" style="width:8%;animation-delay:0s"></div></div><span class="sec">約10秒</span></div>
+<div class="row"><span class="lab">composer install</span><div class="track"><div class="bar hot" style="width:73%;animation-delay:.2s"></div></div><span class="sec">1分40秒</span></div>
+<div class="row"><span class="lab">Pint 実行</span><div class="track"><div class="bar hot" style="width:100%;animation-delay:.4s"></div></div><span class="sec">2分17秒</span></div>
+</div>
+<style>
+.timeb { --line:#3ea8ff; --hot:#e08a3c; --tx:#1a2733; --trk:rgba(127,127,127,.16); display:flex; flex-direction:column; gap:8px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .timeb { --tx:#e8f2fa; }
+.timeb .row { display:flex; align-items:center; gap:10px; }
+.timeb .lab { flex:none; width:104px; color:var(--tx); font-size:12px; white-space:nowrap; }
+.timeb .track { flex:1; height:14px; background:var(--trk); border-radius:4px; overflow:hidden; }
+.timeb .bar { height:100%; background:var(--line); border-radius:4px; transform-origin:left center; animation:timegrow 1.4s ease both; }
+.timeb .bar.hot { background:var(--hot); }
+@keyframes timegrow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+.timeb .sec { flex:none; width:48px; color:var(--tx); font-size:12px; font-weight:700; white-space:nowrap; }
+@media (prefers-reduced-motion: reduce) { .timeb * { animation:none !important; } }
+</style>
+```
 
 合計だけ見ても、何も分かりません。ステップに割ると、時間の居場所が見えます。この計測が、後の判断すべての土台になりました。
 
@@ -96,6 +128,48 @@ phar を直接落とすと聞くと、バージョンがズレる心配があり
 composer.lock の中に記録された laravel/pint のバージョンを、jq で読み取って使います。これで、ローカルの `vendor/bin/pint` と CI の pint.phar は、常に同じバージョンになります。
 
 lock を更新すれば、次回のCIから新しい phar が自動で落ちてきます。
+
+```html-embed
+<div class="lockf">
+<svg viewBox="0 0 700 104" role="img" aria-label="composer.lockからpint.phar実行までの流れ">
+<defs>
+<marker id="ah3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+<path d="M0 0 L7 3 L0 6 Z" class="ahp"/>
+</marker>
+</defs>
+<line class="beam" marker-end="url(#ah3)" x1="160" y1="52" x2="188" y2="52"/>
+<line class="beam" marker-end="url(#ah3)" x1="342" y1="52" x2="370" y2="52"/>
+<line class="beam" marker-end="url(#ah3)" x1="520" y1="52" x2="548" y2="52"/>
+<rect class="node seq" style="animation-delay:0s" x="20" y="30" width="140" height="44" rx="8"/>
+<text class="t" x="90" y="49" text-anchor="middle">composer.lock</text>
+<text class="ts" x="90" y="66" text-anchor="middle">記録された版</text>
+<rect class="node seq" style="animation-delay:1.2s" x="192" y="30" width="150" height="44" rx="8"/>
+<text class="t" x="267" y="49" text-anchor="middle">jq で抽出</text>
+<text class="ts" x="267" y="66" text-anchor="middle">pint の版を読む</text>
+<rect class="node seq" style="animation-delay:2.4s" x="374" y="30" width="146" height="44" rx="8"/>
+<text class="t" x="447" y="49" text-anchor="middle">pint.phar 取得</text>
+<text class="ts" x="447" y="66" text-anchor="middle">同じ版をダウンロード</text>
+<rect class="node seq" style="animation-delay:3.6s" x="552" y="30" width="128" height="44" rx="8"/>
+<text class="t" x="616" y="49" text-anchor="middle">実行</text>
+<text class="ts" x="616" y="66" text-anchor="middle">--test でチェック</text>
+</svg>
+</div>
+<style>
+.lockf { --line:#3ea8ff; --node:#eef6ff; --tx:#1a2733; padding:12px 4px; }
+[data-theme="dark"] .lockf { --node:#16324a; --tx:#e8f2fa; }
+.lockf svg { width:100%; height:auto; display:block; }
+.lockf .beam { fill:none; stroke:var(--line); stroke-width:2; stroke-dasharray:7 7; animation:lockflow 1.2s linear infinite; }
+.lockf .ahp { fill:var(--line); }
+@keyframes lockflow { to { stroke-dashoffset:-14; } }
+.lockf .node { fill:var(--node); stroke:var(--line); stroke-width:1.5; }
+.lockf text { fill:var(--tx); font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+.lockf .t { font-size:13px; font-weight:700; }
+.lockf .ts { font-size:11px; opacity:.75; }
+.lockf .seq { animation:lockseq 4.8s ease-in-out infinite; }
+@keyframes lockseq { 0%, 100% { stroke-width:1.5; } 10% { stroke-width:4; } 22% { stroke-width:1.5; } }
+@media (prefers-reduced-motion: reduce) { .lockf * { animation:none !important; } }
+</style>
+```
 
 「キャッシュは整合性が危ないから避ける」という判断は、裏を返せば「整合性の担保さえできれば、手段は自由」ということでもあります。担保の仕組みを lock に寄せたのが、この一手目の肝でした。
 
@@ -344,5 +418,29 @@ CI高速化の進め方を、判断基準として並べるとこうなります
 | 2 | 不要なステップを消す | composer install の廃止 |
 | 3 | 重い処理を並列化する | --parallel の採用 |
 | 4 | キャッシュは最後に検討する | 今回は不要と判断 |
+
+```html-embed
+<div class="stepd">
+<div class="step" style="animation-delay:0s"><span class="num">1</span><div class="body"><div class="main">測る</div><div class="sub">ステップ単位で内訳を出す</div></div></div>
+<div class="arr">→</div>
+<div class="step" style="animation-delay:1s"><span class="num">2</span><div class="body"><div class="main">消す</div><div class="sub">不要なステップを廃止する</div></div></div>
+<div class="arr">→</div>
+<div class="step" style="animation-delay:2s"><span class="num">3</span><div class="body"><div class="main">並列化</div><div class="sub">重い処理を並列で回す</div></div></div>
+<div class="arr">→</div>
+<div class="step" style="animation-delay:3s"><span class="num">4</span><div class="body"><div class="main">キャッシュは最後</div><div class="sub">今回は不要と判断</div></div></div>
+</div>
+<style>
+.stepd { --acc:#3ea8ff; --bg:#eef6ff; --tx:#1a2733; --bd:#bcd9f5; display:flex; align-items:stretch; gap:6px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .stepd { --bg:#16324a; --tx:#e8f2fa; --bd:#33506b; }
+.stepd .step { flex:1 1 0; min-width:0; display:flex; align-items:flex-start; gap:7px; background:var(--bg); border:1.5px solid var(--bd); border-radius:8px; padding:9px 10px; animation:steppulse 4s ease-in-out infinite; }
+@keyframes steppulse { 0%, 100% { border-color:var(--bd); } 8% { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc) inset; } 20% { border-color:var(--bd); box-shadow:none; } }
+.stepd .num { flex:none; width:20px; height:20px; border-radius:50%; background:var(--acc); color:#fff; font-size:12px; font-weight:700; text-align:center; line-height:20px; margin-top:1px; }
+.stepd .main { color:var(--tx); font-size:13px; font-weight:700; line-height:1.4; }
+.stepd .sub { color:var(--tx); font-size:11px; line-height:1.45; opacity:.8; }
+.stepd .arr { flex:none; align-self:center; color:var(--acc); font-size:14px; font-weight:700; }
+@media (max-width:560px) { .stepd { flex-wrap:wrap; } .stepd .step { flex:1 1 42%; } .stepd .arr { display:none; } }
+@media (prefers-reduced-motion: reduce) { .stepd * { animation:none !important; } }
+</style>
+```
 
 次回は、ECSの起動58秒とALBヘルスチェック45秒が競合して、デプロイがロールバックした話を書きます。
