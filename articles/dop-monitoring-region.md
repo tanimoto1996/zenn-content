@@ -579,10 +579,9 @@ HealthはAWS側の異変、GuardDutyは脅威の検知です。
 .insp svg { width:100%; height:auto; display:block; }
 .insp .iband { fill:rgba(62,168,255,.13); }
 .insp .ithr { stroke:var(--line); stroke-width:1.5; stroke-dasharray:6 5; }
-.insp .iline { fill:none; stroke:var(--line); stroke-width:2.5; stroke-linejoin:round; stroke-linecap:round; stroke-dasharray:900; stroke-dashoffset:900; animation:idraw 5s ease-in-out infinite; }
-@keyframes idraw { 0% { stroke-dashoffset:900; } 55% { stroke-dashoffset:0; } 100% { stroke-dashoffset:0; } }
-.insp .idot { fill:#e5484d; animation:idot 5s ease-in-out infinite; }
-@keyframes idot { 0%, 48% { opacity:0; } 58% { opacity:1; } 70% { opacity:.35; } 82% { opacity:1; } 100% { opacity:1; } }
+.insp .iline { fill:none; stroke:var(--line); stroke-width:2.5; stroke-linejoin:round; stroke-linecap:round; }
+.insp .idot { fill:#e5484d; transform-box:fill-box; transform-origin:center; animation:idot 2s ease-in-out infinite; }
+@keyframes idot { 0%, 100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.55); opacity:.55; } }
 .insp text { fill:var(--tx); font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
 .insp .ilbl { font-size:12px; fill:var(--sub); }
 .insp .ialert { font-size:13px; font-weight:700; fill:#e5484d; }
