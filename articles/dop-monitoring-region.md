@@ -68,6 +68,72 @@ CloudWatch Logsには、2つの出口があります。
 
 でも、出口の先がまったく違います。
 
+```html-embed
+<div class="exits">
+<svg viewBox="0 0 700 330" role="img" aria-label="CloudWatch Logsの2つの出口">
+<defs>
+<marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+<path d="M0 0 L7 3 L0 6 Z" class="ahp"/>
+</marker>
+</defs>
+<path class="beam" marker-end="url(#ah)" d="M112 166 L148 166 L148 70 L176 70"/>
+<path class="beam g" marker-end="url(#ah)" d="M112 166 L148 166 L148 250 L164 250"/>
+<line class="beam" marker-end="url(#ah)" x1="320" y1="70" x2="376" y2="70"/>
+<line class="beam" marker-end="url(#ah)" x1="470" y1="70" x2="516" y2="70"/>
+<line class="beam" marker-end="url(#ah)" x1="600" y1="70" x2="628" y2="70"/>
+<line class="beam g" marker-end="url(#ah)" x1="352" y1="250" x2="416" y2="250"/>
+<circle class="pkt pa" cx="320" cy="70" r="4"/>
+<circle class="pkt pb" cx="470" cy="70" r="4"/>
+<circle class="pkt pd" cx="352" cy="250" r="4"/>
+<rect class="node" x="8" y="140" width="104" height="52" rx="8"/>
+<text class="t" x="60" y="162" text-anchor="middle">CloudWatch</text>
+<text class="t" x="60" y="180" text-anchor="middle">Logs</text>
+<text class="lbl-b" x="250" y="32" text-anchor="middle">数える → 通知</text>
+<rect class="node seq" style="animation-delay:0s" x="180" y="48" width="140" height="44" rx="8"/>
+<text class="t" x="250" y="75" text-anchor="middle">メトリクスフィルター</text>
+<rect class="node seq" style="animation-delay:1.2s" x="380" y="48" width="90" height="44" rx="8"/>
+<text class="t" x="425" y="75" text-anchor="middle">メトリクス</text>
+<rect class="node seq" style="animation-delay:2.4s" x="520" y="48" width="80" height="44" rx="8"/>
+<text class="t" x="560" y="75" text-anchor="middle">アラーム</text>
+<rect class="node seq" style="animation-delay:3.6s" x="632" y="48" width="60" height="44" rx="8"/>
+<text class="t" x="662" y="75" text-anchor="middle">SNS</text>
+<text class="lbl-g" x="260" y="214" text-anchor="middle">流す → 配信</text>
+<rect class="node grn" x="168" y="228" width="184" height="44" rx="8"/>
+<text class="ts" x="260" y="255" text-anchor="middle">サブスクリプションフィルター</text>
+<rect class="node grn" x="420" y="228" width="250" height="44" rx="8"/>
+<text class="t" x="545" y="255" text-anchor="middle">Kinesis / Firehose / Lambda</text>
+</svg>
+</div>
+<style>
+.exits { --line:#3ea8ff; --line2:#2fb457; --node:#eef6ff; --tx:#1a2733; padding:12px 4px; }
+[data-theme="dark"] .exits { --node:#16324a; --tx:#e8f2fa; }
+.exits svg { width:100%; height:auto; display:block; }
+.exits .beam { fill:none; stroke:var(--line); stroke-width:2; stroke-dasharray:7 7; animation:exflow 1.2s linear infinite; }
+.exits .beam.g { stroke:var(--line2); }
+.exits .ahp { fill:var(--line); }
+@keyframes exflow { to { stroke-dashoffset:-14; } }
+.exits .node { fill:var(--node); stroke:var(--line); stroke-width:1.5; }
+.exits .node.grn { stroke:var(--line2); }
+.exits text { fill:var(--tx); font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+.exits .t { font-size:13px; }
+.exits .ts { font-size:12px; }
+.exits .lbl-b { fill:var(--line); font-size:14px; font-weight:700; }
+.exits .lbl-g { fill:var(--line2); font-size:14px; font-weight:700; }
+.exits .seq { animation:expulse 4.8s ease-in-out infinite; }
+@keyframes expulse { 0%, 100% { stroke-width:1.5; } 10% { stroke-width:4; } 22% { stroke-width:1.5; } }
+.exits .pkt { fill:var(--line); opacity:0; }
+.exits .pa { animation:expA 1.6s ease-in infinite; }
+.exits .pb { animation:expB 1.4s ease-in .5s infinite; }
+.exits .pd { fill:var(--line2); animation:expD 1.8s ease-in .2s infinite; }
+@keyframes expA { 0% { transform:translateX(0); opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { transform:translateX(56px); opacity:0; } }
+@keyframes expB { 0% { transform:translateX(0); opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { transform:translateX(46px); opacity:0; } }
+@keyframes expD { 0% { transform:translateX(0); opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { transform:translateX(64px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { .exits * { animation:none !important; } .exits .pkt { display:none; } }
+</style>
+```
+
+*ログの2つの出口。数えるか、流すかで、その先の配管が決まる*
+
 メトリクスフィルターは、ログを数に変えます。
 
 「ERROR」という文字を数えて、メトリクスにします。
