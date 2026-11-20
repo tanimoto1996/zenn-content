@@ -8,28 +8,18 @@ published: false
 
 ## はじめに：3分は、短いようで長い
 
-PRを出すたびに、CIの完了を待つ時間があります。
+PRを出すたびに、CIの完了を待つ時間があります。1回で約3分。大したことないように見えます。
 
-1回で約3分。
+でもpushのたびに3分待たされると、作業のリズムは確実に切れます。「終わったら見よう」と思った頃には、頭は別の作業に移っている。
 
-大したことないように見えます。
-
-でもpushのたびに3分待たされると、作業のリズムは確実に切れます。
-
-「終わったら見よう」と思った頃には、頭は別の作業に移っている。
-
-この記事は、LaravelのフォーマットチェックCIを題材にした高速化の記録です。
-
-約3分かかっていたGitHub Actionsのワークフローを、44秒まで短縮しました。
+この記事は、LaravelのフォーマットチェックCIを題材にした高速化の記録です。約3分かかっていたGitHub Actionsのワークフローを、44秒まで短縮しました。
 
 やったことは2つだけです。
 
 - composer install をやめて、ツール単体のpharを直接ダウンロードする
 - チェックの実行を並列化する
 
-定番のキャッシュは、使いませんでした。
-
-その理由も含めて書きます。
+定番のキャッシュは、使いませんでした。その理由も含めて書きます。
 
 :::message
 この記事で分かること
@@ -44,9 +34,7 @@ PRを出すたびに、CIの完了を待つ時間があります。
 
 ## まず測る：犯人はステップ単位でしか見えない
 
-最初にやったのは、改善ではなく計測です。
-
-`gh run view --log` で実行ログを開き、ステップごとの所要時間を並べました。
+最初にやったのは、改善ではなく計測です。`gh run view --log` で実行ログを開き、ステップごとの所要時間を並べました。
 
 改善前の内訳はこうです。
 
@@ -57,53 +45,29 @@ PRを出すたびに、CIの完了を待つ時間があります。
 | Pint 実行 | 2分17秒 |
 | 合計 | 約3分（実行により2〜3分） |
 
-合計だけ見ても、何も分かりません。
+合計だけ見ても、何も分かりません。ステップに割ると、時間の居場所が見えます。この計測が、後の判断すべての土台になりました。
 
-ステップに割ると、時間の居場所が見えます。
-
-この計測が、後の判断すべての土台になりました。
-
-計測のコツは、合計ではなくステップの境界を見ることです。
-
-ログには各ステップの開始と終了の時刻が残るので、差分を取るだけで内訳が出ます。
-
-実行ごとにばらつきはあるので、1回で断定せず、数回分を見て傾向を掴みました。
+計測のコツは、合計ではなくステップの境界を見ることです。ログには各ステップの開始と終了の時刻が残るので、差分を取るだけで内訳が出ます。実行ごとにばらつきはあるので、1回で断定せず、数回分を見て傾向を掴みました。
 
 ---
 
 ## 犯人は2ついた
 
-内訳から見えたボトルネックは2つです。
+内訳から見えたボトルネックは2つです。1つ目は composer install です。
 
-1つ目は composer install です。
+フォーマットチェックに必要なツールは、Laravel Pint 1つだけです。それなのに毎回、プロジェクト全体の依存関係をインストールしていました。チェックのためだけに、vendor を丸ごと構築していたわけです。
 
-フォーマットチェックに必要なツールは、Laravel Pint 1つだけです。
+2つ目は Pint の実行そのものです。対象は576ファイル。それをシングルプロセスで、順番にチェックしていました。
 
-それなのに毎回、プロジェクト全体の依存関係をインストールしていました。
-
-チェックのためだけに、vendor を丸ごと構築していたわけです。
-
-2つ目は Pint の実行そのものです。
-
-対象は576ファイル。
-
-それをシングルプロセスで、順番にチェックしていました。
-
-セットアップの無駄と、実行の直列。
-
-性質の違う2つの遅さが、重なっていたんです。
+セットアップの無駄と、実行の直列。性質の違う2つの遅さが、重なっていたんです。
 
 ---
 
 ## 一手目：composer install を捨てて、phar を直接叩く
 
-Pint には、単体で動く phar 版があります。
+Pint には、単体で動く phar 版があります。ならば、vendor を構築する必要自体がありません。
 
-ならば、vendor を構築する必要自体がありません。
-
-phar を直接ダウンロードして実行すれば、composer install は丸ごと消えます。
-
-変更後のワークフローはこうなりました。
+phar を直接ダウンロードして実行すれば、composer install は丸ごと消えます。変更後のワークフローはこうなりました。
 
 ```yaml
 - name: Setup PHP
@@ -123,27 +87,17 @@ phar を直接ダウンロードして実行すれば、composer install は丸�
   working-directory: ./src
 ```
 
-消したのは、composer 本体のセットアップと、依存関係のキャッシュ指定と、インストールステップです。
-
-残したのは Setup PHP だけです。
-
-その理由は後で書きます。
+消したのは、composer 本体のセットアップと、依存関係のキャッシュ指定と、インストールステップです。残したのは Setup PHP だけです。その理由は後で書きます。
 
 ### バージョンの整合性は composer.lock が担保する
 
-phar を直接落とすと聞くと、バージョンがズレる心配があります。
+phar を直接落とすと聞くと、バージョンがズレる心配があります。そこで、落とすバージョンは固定値にしませんでした。
 
-そこで、落とすバージョンは固定値にしませんでした。
-
-composer.lock の中に記録された laravel/pint のバージョンを、jq で読み取って使います。
-
-これで、ローカルの `vendor/bin/pint` と CI の pint.phar は、常に同じバージョンになります。
+composer.lock の中に記録された laravel/pint のバージョンを、jq で読み取って使います。これで、ローカルの `vendor/bin/pint` と CI の pint.phar は、常に同じバージョンになります。
 
 lock を更新すれば、次回のCIから新しい phar が自動で落ちてきます。
 
-「キャッシュは整合性が危ないから避ける」という判断は、裏を返せば「整合性の担保さえできれば、手段は自由」ということでもあります。
-
-担保の仕組みを lock に寄せたのが、この一手目の肝でした。
+「キャッシュは整合性が危ないから避ける」という判断は、裏を返せば「整合性の担保さえできれば、手段は自由」ということでもあります。担保の仕組みを lock に寄せたのが、この一手目の肝でした。
 
 ---
 
@@ -159,47 +113,25 @@ phar化だけを入れた時点の結果です。
 | Pint 実行 | 2分17秒 |
 | 合計 | 約2分34秒 |
 
-composer install は消えました。
+composer install は消えました。ダウンロードは、わずか0.4秒です。
 
-ダウンロードは、わずか0.4秒です。
+でも合計は、3分から2分34秒までしか縮みません。Pint 実行の2分17秒が、そのまま残ったからです。
 
-でも合計は、3分から2分34秒までしか縮みません。
+一番大きいステップを消しても、次に大きいステップが残れば、そこで止まります。当たり前やけど、これは実測するまで体感できませんでした。
 
-Pint 実行の2分17秒が、そのまま残ったからです。
-
-一番大きいステップを消しても、次に大きいステップが残れば、そこで止まります。
-
-当たり前やけど、これは実測するまで体感できませんでした。
-
-「最大の無駄を消したのに、まだ遅い」。
-
-この状態が、二手目の必要性をはっきりさせました。
+「最大の無駄を消したのに、まだ遅い」。この状態が、二手目の必要性をはっきりさせました。
 
 ---
 
 ## 二手目：--parallel で最後の2分を消す
 
-Pint には `--parallel` という並列実行のオプションがあります。
+Pint には `--parallel` という並列実行のオプションがあります。ただし Experimental、つまり実験的機能の扱いです。採用するかどうかは、リスクの種類で判断しました。
 
-ただし Experimental、つまり実験的機能の扱いです。
+今回のコマンドは `php /tmp/pint.phar --test --parallel` です。`--test` はチェック専用の読み取りモードで、ファイルを書き換えません。
 
-採用するかどうかは、リスクの種類で判断しました。
+つまり最悪の場合でも、起こるのは「チェックが失敗する」までです。コードが壊れることはありません。失敗したら、直して再実行すれば済みます。
 
-今回のコマンドは `php /tmp/pint.phar --test --parallel` です。
-
-`--test` はチェック専用の読み取りモードで、ファイルを書き換えません。
-
-つまり最悪の場合でも、起こるのは「チェックが失敗する」までです。
-
-コードが壊れることはありません。
-
-失敗したら、直して再実行すれば済みます。
-
-「壊れるリスク」と「失敗するだけのリスク」は、別物です。
-
-読み取り専用の処理なら、Experimental でも踏み込める。
-
-そう判断して採用しました。
+「壊れるリスク」と「失敗するだけのリスク」は、別物です。読み取り専用の処理なら、Experimental でも踏み込める。そう判断して採用しました。
 
 結果、Pint の実行は2分17秒から23秒になりました。
 
@@ -215,9 +147,7 @@ Pint には `--parallel` という並列実行のオプションがあります�
 | Pint 実行 | 2分17秒 | 2分17秒 | 23秒 |
 | 合計 | 約3分 | 約2分34秒 | 約44秒 |
 
-流れを図にすると、こうなります。
-
-上のバーが伸びきる間に、下のバーはとっくに終わっています。
+流れを図にすると、こうなります。上のバーが伸びきる間に、下のバーはとっくに終わっています。
 
 ```html-embed
 <div class="ciflow">
@@ -295,9 +225,7 @@ Pint には `--parallel` という並列実行のオプションがあります�
 
 ## 効かなかったこと・見送ったこと
 
-速くするためなら、何でも入れればいいわけではありません。
-
-今回、あえて手を付けなかった定番対策が3つあります。
+速くするためなら、何でも入れればいいわけではありません。今回、あえて手を付けなかった定番対策が3つあります。
 
 | 対策 | 判断 | 理由 |
 | --- | --- | --- |
@@ -305,63 +233,92 @@ Pint には `--parallel` という並列実行のオプションがあります�
 | 差分チェック（--diff） | 見送り | 変更ファイルだけでは、既存の違反を見逃す |
 | Setup PHP の削除 | 見送り | ランナー側のPHP版が変わると、CIが突然壊れる |
 
+```html-embed
+<div class="rejc">
+<div class="card" style="animation-delay:0s">
+<div class="head"><span class="mark">✗</span><span class="name">依存関係のキャッシュ</span><span class="badge">見送り</span></div>
+<p class="reason">phar の取得が0.4秒で済み、キャッシュする意味自体が消えた</p>
+</div>
+<div class="card" style="animation-delay:.25s">
+<div class="head"><span class="mark">✗</span><span class="name">差分チェック（--diff）</span><span class="badge">見送り</span></div>
+<p class="reason">変更ファイルだけでは、既存の違反を見逃す</p>
+</div>
+<div class="card" style="animation-delay:.5s">
+<div class="head"><span class="mark">✗</span><span class="name">Setup PHP の削除</span><span class="badge">見送り</span></div>
+<p class="reason">ランナー側のPHP版が変わると、CIが突然壊れる</p>
+</div>
+</div>
+<style>
+.rejc { --acc:#d9534f; --bg:#fdf0ef; --tx:#1a2733; --bd:#e5b4b1; display:flex; flex-direction:column; gap:10px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .rejc { --bg:#3a1d1b; --tx:#f2e9e8; --bd:#6e3a37; }
+.rejc .card { background:var(--bg); border:1px solid var(--bd); border-left:4px solid var(--acc); border-radius:8px; padding:10px 14px; animation:rejfade .8s ease both; }
+@keyframes rejfade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.rejc .head { display:flex; align-items:center; gap:8px; }
+.rejc .mark { color:var(--acc); font-weight:700; font-size:15px; }
+.rejc .name { color:var(--tx); font-weight:700; font-size:14px; }
+.rejc .badge { margin-left:auto; color:var(--acc); border:1px solid var(--acc); border-radius:999px; font-size:11px; padding:1px 8px; white-space:nowrap; }
+.rejc .reason { color:var(--tx); font-size:13px; margin:6px 0 0; line-height:1.6; }
+@media (prefers-reduced-motion: reduce) { .rejc * { animation:none !important; } }
+</style>
+```
+
 1つずつ見ます。
 
-キャッシュは、CI高速化の定番です。
+キャッシュは、CI高速化の定番です。でも今回は、そもそもインストール自体を消しました。残ったダウンロードは0.4秒です。
 
-でも今回は、そもそもインストール自体を消しました。
+0.4秒をキャッシュで削るために、整合性の管理を持ち込むのは割に合いません。キャッシュは速くする手段であって、目的ではないんです。
 
-残ったダウンロードは0.4秒です。
+差分チェックは、PRで変更したファイルだけを対象にする方法です。確かに速くなります。でも、既存ファイルの違反は検出できません。
 
-0.4秒をキャッシュで削るために、整合性の管理を持ち込むのは割に合いません。
+フォーマットチェックの役割は「全体が揃っていることの保証」です。速さと引き換えに、その役割を手放す判断はしませんでした。
 
-キャッシュは速くする手段であって、目的ではないんです。
+Setup PHP の削除も検討しました。ランナーにはPHPが入っているので、消せば約10秒縮みます。でも、ランナー側のPHPバージョンは予告なく変わります。
 
-差分チェックは、PRで変更したファイルだけを対象にする方法です。
-
-確かに速くなります。
-
-でも、既存ファイルの違反は検出できません。
-
-フォーマットチェックの役割は「全体が揃っていることの保証」です。
-
-速さと引き換えに、その役割を手放す判断はしませんでした。
-
-Setup PHP の削除も検討しました。
-
-ランナーにはPHPが入っているので、消せば約10秒縮みます。
-
-でも、ランナー側のPHPバージョンは予告なく変わります。
-
-setup系のアクションは、外部要因で突然壊れるリスクと隣り合わせです。
-
-逆に言えば、バージョンを固定する Setup PHP は、そのリスクへの保険です。
-
-12秒は、安全料として払うことにしました。
+setup系のアクションは、外部要因で突然壊れるリスクと隣り合わせです。逆に言えば、バージョンを固定する Setup PHP は、そのリスクへの保険です。12秒は、安全料として払うことにしました。
 
 :::message
-「効かなかったこと」として正直に書くと、最初は phar化だけで終わらせるつもりでした。
-結果は2分34秒。
+「効かなかったこと」として正直に書くと、最初は phar化だけで終わらせるつもりでした。結果は2分34秒。
 一手で終わらせず、内訳を見直したことが44秒への分かれ道でした。
 :::
 
 ---
 
-## 落とし穴：phar の置き場所と、jq のキー
+## 落とし穴2つ：置き場所とキー指定
 
 つまずいた点を2つ残しておきます。
 
-1つ目は、phar の置き場所です。
+1つ目は、phar の置き場所です。リポジトリのルートにダウンロードすると、実行時の working-directory とパスが合わずに失敗しました。`/tmp/pint.phar` に置くことで解決しています。
 
-リポジトリのルートにダウンロードすると、実行時の working-directory とパスが合わずに失敗しました。
+2つ目は、jq のキー指定です。composer.lock の `packages-dev` にはハイフンが含まれます。ドット記法では辿れないので、`.["packages-dev"][]` の形で書く必要があります。
 
-`/tmp/pint.phar` に置くことで解決しています。
-
-2つ目は、jq のキー指定です。
-
-composer.lock の `packages-dev` にはハイフンが含まれます。
-
-ドット記法では辿れないので、`.["packages-dev"][]` の形で書く必要があります。
+```html-embed
+<div class="pitc">
+<div class="card" style="animation-delay:0s">
+<div class="row"><span class="tag ng">落とし穴</span><span class="txt">phar をリポジトリのルートにダウンロード → 実行時の working-directory とパスが合わず失敗</span></div>
+<div class="arrow">↓</div>
+<div class="row"><span class="tag ok">解決</span><span class="txt"><code>/tmp/pint.phar</code> に置く</span></div>
+</div>
+<div class="card" style="animation-delay:.3s">
+<div class="row"><span class="tag ng">落とし穴</span><span class="txt">jq をドット記法で書く → <code>packages-dev</code> のハイフンで辿れない</span></div>
+<div class="arrow">↓</div>
+<div class="row"><span class="tag ok">解決</span><span class="txt"><code>.["packages-dev"][]</code> の形で書く</span></div>
+</div>
+</div>
+<style>
+.pitc { --ng:#e08a3c; --ok:#2f9e5f; --bg:#fdf6ec; --bg2:#eef7f1; --tx:#1a2733; --bd:#e3cfa8; display:flex; flex-direction:column; gap:10px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .pitc { --bg:#3a2c16; --bg2:#173325; --tx:#f2ede4; --bd:#6e5a33; }
+.pitc .card { background:var(--bg); border:1px solid var(--bd); border-radius:8px; padding:10px 14px; animation:pitfade .8s ease both; }
+@keyframes pitfade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.pitc .row { display:flex; align-items:flex-start; gap:8px; }
+.pitc .tag { flex:none; border-radius:999px; font-size:11px; font-weight:700; padding:2px 9px; margin-top:1px; white-space:nowrap; }
+.pitc .tag.ng { color:var(--ng); border:1px solid var(--ng); }
+.pitc .tag.ok { color:var(--ok); border:1px solid var(--ok); }
+.pitc .txt { color:var(--tx); font-size:13px; line-height:1.6; }
+.pitc .txt code { font-size:12px; background:rgba(127,127,127,.18); border-radius:4px; padding:1px 5px; }
+.pitc .arrow { color:var(--ng); font-size:13px; text-align:center; line-height:1.4; }
+@media (prefers-reduced-motion: reduce) { .pitc * { animation:none !important; } }
+</style>
+```
 
 :::details コミット分割の基準
 変更は「phar化」と「--parallel 追加」の2コミットに分けました。
