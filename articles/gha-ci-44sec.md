@@ -93,6 +93,31 @@ PRを出すたびに、CIの完了を待つ時間があります。1回で約3�
 
 セットアップの無駄と、実行の直列。性質の違う2つの遅さが、重なっていたんです。
 
+```html-embed
+<div class="bnc">
+<div class="card" style="animation-delay:0s">
+<div class="head"><span class="name">composer install</span><span class="tag">セットアップの無駄</span><span class="sec">1分40秒</span></div>
+<p class="desc">チェックに要るのは Pint 1つだけ。なのに毎回、vendor を丸ごと構築していた</p>
+</div>
+<div class="card" style="animation-delay:.25s">
+<div class="head"><span class="name">Pint 実行</span><span class="tag">実行の直列</span><span class="sec">2分17秒</span></div>
+<p class="desc">対象は576ファイル。それをシングルプロセスで、順番にチェックしていた</p>
+</div>
+</div>
+<style>
+.bnc { --acc:#e08a3c; --bg:#fdf3e7; --tx:#1a2733; --bd:#ecd3ac; display:flex; flex-direction:column; gap:10px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .bnc { --bg:#3a2a16; --tx:#f2ede4; --bd:#6e5a33; }
+.bnc .card { background:var(--bg); border:1px solid var(--bd); border-left:4px solid var(--acc); border-radius:8px; padding:10px 14px; animation:bncfade .8s ease both; }
+@keyframes bncfade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.bnc .head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.bnc .name { color:var(--tx); font-weight:700; font-size:14px; }
+.bnc .tag { color:var(--acc); border:1px solid var(--acc); border-radius:999px; font-size:11px; font-weight:700; padding:1px 8px; white-space:nowrap; }
+.bnc .sec { margin-left:auto; color:var(--acc); font-weight:700; font-size:14px; white-space:nowrap; }
+.bnc .desc { color:var(--tx); font-size:13px; margin:6px 0 0; line-height:1.6; }
+@media (prefers-reduced-motion: reduce) { .bnc * { animation:none !important; } }
+</style>
+```
+
 ---
 
 ## 一手目：composer install を捨てて、phar を直接叩く
@@ -120,6 +145,37 @@ phar を直接ダウンロードして実行すれば、composer install は丸�
 ```
 
 消したのは、composer 本体のセットアップと、依存関係のキャッシュ指定と、インストールステップです。残したのは Setup PHP だけです。その理由は後で書きます。
+
+```html-embed
+<div class="delc">
+<div class="col del" style="animation-delay:0s">
+<div class="ttl"><span class="mark">✗</span>消したもの</div>
+<div class="item">composer 本体のセットアップ</div>
+<div class="item">依存関係のキャッシュ指定</div>
+<div class="item">インストールステップ</div>
+</div>
+<div class="col keep" style="animation-delay:.25s">
+<div class="ttl"><span class="mark">✓</span>残したもの</div>
+<div class="item">Setup PHP のみ</div>
+<div class="note">バージョン固定が、保険になる</div>
+</div>
+</div>
+<style>
+.delc { --del:#d9534f; --keep:#2f9e5f; --bgd:#fdf0ef; --bgk:#eef7f1; --tx:#1a2733; --bdd:#e5b4b1; --bdk:#a9d4ba; display:flex; gap:10px; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .delc { --bgd:#3a1d1b; --bgk:#173325; --tx:#f2ede4; --bdd:#6e3a37; --bdk:#2c5b40; }
+.delc .col { flex:1 1 0; min-width:0; border-radius:8px; padding:10px 14px; animation:delcfade .8s ease both; }
+.delc .col.del { background:var(--bgd); border:1px solid var(--bdd); border-top:4px solid var(--del); }
+.delc .col.keep { background:var(--bgk); border:1px solid var(--bdk); border-top:4px solid var(--keep); }
+@keyframes delcfade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.delc .ttl { color:var(--tx); font-weight:700; font-size:14px; margin-bottom:6px; }
+.delc .del .mark { color:var(--del); margin-right:6px; }
+.delc .keep .mark { color:var(--keep); margin-right:6px; }
+.delc .item { color:var(--tx); font-size:13px; line-height:1.6; padding:2px 0; }
+.delc .note { color:var(--tx); font-size:12px; line-height:1.55; opacity:.8; padding-top:2px; }
+@media (max-width:560px) { .delc { flex-direction:column; } }
+@media (prefers-reduced-motion: reduce) { .delc * { animation:none !important; } }
+</style>
+```
 
 ### バージョンの整合性は composer.lock が担保する
 
@@ -206,6 +262,42 @@ Pint には `--parallel` という並列実行のオプションがあります�
 つまり最悪の場合でも、起こるのは「チェックが失敗する」までです。コードが壊れることはありません。失敗したら、直して再実行すれば済みます。
 
 「壊れるリスク」と「失敗するだけのリスク」は、別物です。読み取り専用の処理なら、Experimental でも踏み込める。そう判断して採用しました。
+
+```html-embed
+<div class="rskc">
+<div class="cols">
+<div class="card ng" style="animation-delay:0s">
+<div class="ttl">壊れるリスク</div>
+<p class="desc">最悪の場合、コードが壊れる</p>
+<div class="judge">→ 踏み込まない</div>
+</div>
+<div class="card ok" style="animation-delay:.25s">
+<div class="ttl">失敗するだけのリスク</div>
+<p class="desc">最悪でも、チェックが失敗するだけ</p>
+<div class="judge">→ 読み取り専用なら踏み込める</div>
+</div>
+</div>
+<p class="basis">根拠：<code>--test</code> は読み取り専用で、ファイルを書き換えません</p>
+</div>
+<style>
+.rskc { --ng:#d9534f; --ok:#2f9e5f; --bgn:#fdf0ef; --bgo:#eef7f1; --tx:#1a2733; --bdn:#e5b4b1; --bdo:#a9d4ba; padding:12px 4px; font-family:-apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+[data-theme="dark"] .rskc { --bgn:#3a1d1b; --bgo:#173325; --tx:#f2ede4; --bdn:#6e3a37; --bdo:#2c5b40; }
+.rskc .cols { display:flex; gap:10px; }
+.rskc .card { flex:1 1 0; min-width:0; border-radius:8px; padding:10px 14px; animation:rskcfade .8s ease both; }
+.rskc .card.ng { background:var(--bgn); border:1px solid var(--bdn); border-top:4px solid var(--ng); }
+.rskc .card.ok { background:var(--bgo); border:1px solid var(--bdo); border-top:4px solid var(--ok); }
+@keyframes rskcfade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.rskc .ttl { color:var(--tx); font-weight:700; font-size:14px; }
+.rskc .desc { color:var(--tx); font-size:13px; margin:6px 0 0; line-height:1.6; }
+.rskc .judge { font-size:13px; font-weight:700; margin-top:6px; }
+.rskc .ng .judge { color:var(--ng); }
+.rskc .ok .judge { color:var(--ok); }
+.rskc .basis { color:var(--tx); font-size:12px; line-height:1.55; opacity:.85; margin:8px 0 0; }
+.rskc .basis code { font-size:11.5px; background:rgba(127,127,127,.18); border-radius:4px; padding:1px 5px; }
+@media (max-width:560px) { .rskc .cols { flex-direction:column; } }
+@media (prefers-reduced-motion: reduce) { .rskc * { animation:none !important; } }
+</style>
+```
 
 結果、Pint の実行は2分17秒から23秒になりました。
 
@@ -421,11 +513,11 @@ CI高速化の進め方を、判断基準として並べるとこうなります
 
 ```html-embed
 <div class="stepd">
-<div class="step" style="animation-delay:0s"><span class="num">1</span><div class="body"><div class="main">測る</div><div class="sub">ステップ単位で内訳を出す</div></div></div>
+<div class="step" style="animation-delay:0s"><span class="num">1</span><div class="body"><div class="main">測る</div><div class="sub">ステップ単位の内訳</div></div></div>
 <div class="arr">→</div>
-<div class="step" style="animation-delay:1s"><span class="num">2</span><div class="body"><div class="main">消す</div><div class="sub">不要なステップを廃止する</div></div></div>
+<div class="step" style="animation-delay:1s"><span class="num">2</span><div class="body"><div class="main">消す</div><div class="sub">不要ステップを消す</div></div></div>
 <div class="arr">→</div>
-<div class="step" style="animation-delay:2s"><span class="num">3</span><div class="body"><div class="main">並列化</div><div class="sub">重い処理を並列で回す</div></div></div>
+<div class="step" style="animation-delay:2s"><span class="num">3</span><div class="body"><div class="main">並列化</div><div class="sub">重い処理を並列化</div></div></div>
 <div class="arr">→</div>
 <div class="step" style="animation-delay:3s"><span class="num">4</span><div class="body"><div class="main">キャッシュは最後</div><div class="sub">今回は不要と判断</div></div></div>
 </div>
