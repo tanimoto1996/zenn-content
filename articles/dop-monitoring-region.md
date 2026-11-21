@@ -1,7 +1,7 @@
 ---
 title: "DOP ⑤監視・観測区 ― ログの2つの出口と、検知源の使い分けで見抜く監視"
 emoji: "🔭"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: false
 ---

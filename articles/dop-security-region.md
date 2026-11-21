@@ -1,7 +1,7 @@
 ---
 title: "DOP ③セキュリティ・統制区 ― SCP総集編と、監査コンビで見抜く統制の罠"
 emoji: "🛡️"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---

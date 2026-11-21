@@ -1,7 +1,7 @@
 ---
 title: "DOP ②IaC・設定管理区 ― CloudFormationの差分罠と、SSMで運用を回す見抜き方"
 emoji: "🏗️"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---

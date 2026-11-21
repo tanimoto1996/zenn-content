@@ -1,7 +1,7 @@
 ---
 title: "DOP ①SDLC自動化区 ― CodePipeline／CodeDeployの切り分けと、無言で死ぬデプロイの見抜き方"
 emoji: "🚀"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---

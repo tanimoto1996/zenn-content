@@ -1,7 +1,7 @@
 ---
 title: "DOPに880点で合格したので、問題集と反射ドリルの勉強法を全部公開する"
 emoji: "📚"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---

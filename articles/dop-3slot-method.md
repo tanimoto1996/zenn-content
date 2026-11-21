@@ -1,7 +1,7 @@
 ---
 title: "DOPは「正解を探すな」― 3スロット法の完全版：30秒で選択肢を消す読解プロトコル"
 emoji: "🎯"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---

@@ -1,7 +1,7 @@
 ---
 title: "DOP ④回復力・自己治癒区 ― ローリングとBlue/Green、SQSの罠で見抜く回復力"
 emoji: "🔄"
-type: "idea" # tech: 技術記事 / idea: アイデア
+type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "dop", "資格", "devops", "aws認定資格"]
 published: true
 ---
