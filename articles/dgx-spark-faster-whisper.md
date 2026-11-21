@@ -1,5 +1,5 @@
 ---
-title: "DGX Sparkにfaster-whisperを載せたら、公開イメージが全部使えなかった ― aarch64×Blackwellの壁を越えてRTF 0.02に届くまで"
+title: "DGX Sparkで公開イメージが全部使えなかった ― faster-whisperをRTF 0.02まで持っていく話"
 emoji: "🖥️"
 type: "tech"
 topics: ["nvidia", "docker", "whisper", "gpu", "linux"]
