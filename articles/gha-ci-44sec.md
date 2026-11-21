@@ -3,7 +3,7 @@ title: "GitHub ActionsのCIを3分→44秒に短縮 ― 決め手はキャッシ
 emoji: "⚡"
 type: "tech"
 topics: ["githubactions", "ci", "laravel", "php"]
-published: false
+published: true
 ---
 
 ## はじめに：3分は、短いようで長い
